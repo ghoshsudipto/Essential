@@ -3,6 +3,8 @@
 #########################################
 
 #https://www.analyticsvidhya.com/blog/2017/09/common-machine-learning-algorithms/?#
+#https://datatofish.com/multiple-linear-regression-python/
+#https://datascienceplus.com/multiple-linear-regression-in-python/
 
 import pandas as pd
 from sklearn.linear_model import LinearRegression
