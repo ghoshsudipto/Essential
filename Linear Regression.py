@@ -5,7 +5,7 @@
 #https://www.analyticsvidhya.com/blog/2017/09/common-machine-learning-algorithms/?#
 #https://datatofish.com/multiple-linear-regression-python/
 #https://datascienceplus.com/multiple-linear-regression-in-python/
-# mean, median, mode(1), range mean
+# mean, median(2nd most imp), mode(1), range mean
 import pandas as pd
 from sklearn.linear_model import LinearRegression
 from sklearn.metrics import mean_squared_error
