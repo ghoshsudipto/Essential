@@ -6,6 +6,7 @@
 #https://datatofish.com/multiple-linear-regression-python/
 #https://datascienceplus.com/multiple-linear-regression-in-python/
 # mean, median(2nd most imp), mode(1), range mean
+# https://towardsdatascience.com/on-average-youre-using-the-wrong-average-geometric-harmonic-means-in-data-analysis-2a703e21ea0
 import pandas as pd
 from sklearn.linear_model import LinearRegression
 from sklearn.metrics import mean_squared_error
