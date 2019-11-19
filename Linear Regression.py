@@ -1,69 +1,22 @@
-#########################################
-########### Linear Regression ###########
-#########################################
-
-#https://www.analyticsvidhya.com/blog/2017/09/common-machine-learning-algorithms/?#
-#https://datatofish.com/multiple-linear-regression-python/
-#https://datascienceplus.com/multiple-linear-regression-in-python/
-# mean, median(2nd most imp), mode(1), range mean
-# https://towardsdatascience.com/on-average-youre-using-the-wrong-average-geometric-harmonic-means-in-data-analysis-2a703e21ea0
 import pandas as pd
-from sklearn.linear_model import LinearRegression
-from sklearn.metrics import mean_squared_error
+from matplotlib import pyplot as plt
+from scipy.stats.mstats import gmean
 
-# read the train and test dataset
-train_data = pd.read_csv('train.csv')
-test_data = pd.read_csv('test.csv')
+pd.set_option('display.max_column', 10)
+pd.set_option('display.max_row', 500)
+pd.set_option('display.width', 500)
+plt.style.use('ggplot')
 
-print(train_data.head())
+df = pd.read_csv(r'C:\Users\Sudipto\Dropbox\Python\DA\datasets\BN.csv')
+df[['Date', 'Expiry']] = df[['Date', 'Expiry']].apply(pd.to_datetime)
+df.set_index('Date', inplace=True)
+df['Range'] = df['High'] - df['Low']
+df['CoC'] = df['Close'] - df['Underlying']
+df['AvCoC'] = df['CoC'].rolling(3).apply(gmean, raw=True)
+print(df)
 
-# shape of the dataset
-print('\nShape of training data :',train_data.shape)
-print('\nShape of testing data :',test_data.shape)
-
-# Now, we need to predict the missing target variable in the test data
-# target variable - Item_Outlet_Sales
-
-# seperate the independent and target variable on training data
-train_x = train_data.drop(columns=['Item_Outlet_Sales'],axis=1)
-train_y = train_data['Item_Outlet_Sales']
-
-# seperate the independent and target variable on training data
-test_x = test_data.drop(columns=['Item_Outlet_Sales'],axis=1)
-test_y = test_data['Item_Outlet_Sales']
-
-'''
-Create the object of the Linear Regression model
-You can also add other parameters and test your code here
-Some parameters are : fit_intercept and normalize
-Documentation of sklearn LinearRegression:
-
-https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LinearRegression.html
-
- '''
-model = LinearRegression()
-
-# fit the model with the training data
-model.fit(train_x,train_y)
-
-# coefficeints of the trained model
-print('\nCoefficient of model :', model.coef_)
-
-# intercept of the model
-print('\nIntercept of model',model.intercept_)
-
-# predict the target on the test dataset
-predict_train = model.predict(train_x)
-print('\nItem_Outlet_Sales on training data',predict_train)
-
-# Root Mean Squared Error on training dataset
-rmse_train = mean_squared_error(train_y,predict_train)**(0.5)
-print('\nRMSE on train dataset : ', rmse_train)
-
-# predict the target on the testing dataset
-predict_test = model.predict(test_x)
-print('\nItem_Outlet_Sales on test data',predict_test)
-
-# Root Mean Squared Error on testing dataset
-rmse_test = mean_squared_error(test_y,predict_test)**(0.5)
-print('\nRMSE on test dataset : ', rmse_test)
+plt.scatter(df['CoC'].shift(1), df['Close'], color='red')
+plt.title('Close vs CoC')
+plt.xlabel('CoC')
+plt.ylabel('Close')
+plt.show()
