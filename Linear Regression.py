@@ -1,37 +1,58 @@
 import pandas as pd
 import numpy as np
+import sklearn
+from sklearn import linear_model
 from matplotlib import pyplot as plt
-
-pd.set_option('display.max_column', 100)
-pd.set_option('display.max_row', 500)
-pd.set_option('display.width', 500)
+import pickle
 plt.style.use('ggplot')
+pd.set_option('display.max_column', 5000)
+pd.set_option('display.max_row', 5000)
+pd.set_option('display.width', 5000)
 
-df = pd.read_csv(r'H:\Py\dataset\BN.csv')
-df[['Date', 'Expiry']] = df[['Date', 'Expiry']].apply(pd.to_datetime)
-df.set_index('Date', inplace=True)
-df['RangeQ'] = (df['High'] - df['Low'])/3
- # df['High'] - df['Close'] < RangeQ
+df = pd.read_csv(r'C:\Users\Sudipto\Dropbox\Python\DA\datasets\BN.csv')
+# df[['Date', 'Expiry']] = df[['Date', 'Expiry']].apply(pd.to_datetime)
+df.sort_values('Date', inplace=True)
+# df.set_index('Date', inplace=True)
 
-df['haha'] = np.select([df['High'].shift(1) - df['Close'].shift(1) < df['RangeQ']], [df['Close'].shift(1)-df['Close']])
-# df['CoC'] = df['Close'] - df['Underlying']
-# df['AvCoC'] = df['CoC'].rolling(3).mean()
+df = df[['Expiry', 'Close', 'Prev Close HDFCBANK', 'Prev Close ICICIBANK', 'Prev Close AXISBANK',
+         'Prev Close KOTAKBANK', 'Prev Close SBIN']]
 
-condition = [(df['Expiry'] == df['Expiry'].shift(-1)) & (df['Expiry'] == df['Expiry'].shift(1)) & (df['Expiry'] == df['Expiry'].shift(2))]
-choice = [df['Close'].rolling(3).mean()]
-df['MA3'] = np.select(condition, choice)
-df['MA3'].replace(0, np.nan, inplace=True)
+print(df.head())
 
-print(df)
+predict = 'Close'
+x = np.array(df.drop([predict], 1))
+y = np.array(df[predict])
+x_train, x_test, y_train, y_test = sklearn.model_selection.train_test_split(x, y, test_size=0.1)
 
-# plt.scatter(df['MA'], df['Close'], color='g')
-# plt.title('Close vs MA')
-# plt.xlabel('MA')
-# plt.ylabel('Close')
-# plt.show()
+best = 0
+for a in range(5000):
 
-# plt.scatter(df['High'].shift(1), df['Close'], color='g')
-# plt.title('Close vs MA')
-# plt.xlabel('MA')
-# plt.ylabel('Close')
-# plt.show()
+    x_train, x_test, y_train, y_test = sklearn.model_selection.train_test_split(x, y, test_size=0.1)
+
+    linear = linear_model.LinearRegression()
+    linear.fit(x_train, y_train)
+    accuracy = linear.score(x_test, y_test)
+    print(accuracy)
+
+    if accuracy > best:
+        best = accuracy
+        with open('topfive.pickle', 'wb') as f:
+            pickle.dump(linear, f)
+
+pickle_in = open('topfive.pickle', 'rb')
+
+linear = pickle.load(pickle_in)
+
+print('Coefficient: \n', linear.coef_)
+print('Intercept: \n', linear.intercept_)
+
+predictions = linear.predict(x_test)
+
+for x in range(len(predictions)):
+    print(predictions[x], x_test[x], y_test[x])
+
+p = 'Prev Close HDFCBANK'
+plt.scatter(df[p], df['Close'])
+plt.xlabel('HDFC')
+plt.ylabel('BN Close')
+plt.show()
